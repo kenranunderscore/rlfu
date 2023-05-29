@@ -1,0 +1,19 @@
+cabal-version:      3.0
+name:               rlfu
+version:            0.1.0.0
+license:            MIT
+license-file:       LICENSE
+author:             Johannes Maier
+maintainer:         johannes.maier@mailbox.org
+category:           Game
+build-type:         Simple
+
+common warnings
+    ghc-options: -Wall
+
+executable rlfu
+    import:           warnings
+    main-is:          Main.hs
+    build-depends:    base
+    hs-source-dirs:   src-exe
+    default-language: GHC2021
