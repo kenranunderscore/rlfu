@@ -15,5 +15,6 @@ executable rlfu
     import:           warnings
     main-is:          Main.hs
     build-depends:    base
+                    , sdl2
     hs-source-dirs:   src-exe
     default-language: GHC2021
