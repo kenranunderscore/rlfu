@@ -13,25 +13,23 @@ import Sdl qualified
 
 main :: IO ()
 main =
-  Sdl.withSdl $ do
-    Sdl.withWindow $ \win -> do
-      Sdl.withRenderer win $ \renderer -> do
-        SDL.rendererDrawColor renderer $= V4 83 50 maxBound maxBound
-        let loop = do
-              evts <- fmap SDL.eventPayload <$> SDL.pollEvents
-              let quit =
-                    evts
-                      & fmap
-                        ( \case
-                            SDL.KeyboardEvent e | SDL.keyboardEventKeyMotion e == SDL.Pressed ->
-                              case SDL.keysymKeycode (SDL.keyboardEventKeysym e) of
-                                SDL.KeycodeEscape -> True
-                                _ -> False
-                            SDL.QuitEvent -> True
+  Sdl.withSdlEnvironment $ \_win renderer -> do
+    SDL.rendererDrawColor renderer $= V4 83 50 maxBound maxBound
+    let loop = do
+          evts <- fmap SDL.eventPayload <$> SDL.pollEvents
+          let quit =
+                evts
+                  & fmap
+                    ( \case
+                        SDL.KeyboardEvent e | SDL.keyboardEventKeyMotion e == SDL.Pressed ->
+                          case SDL.keysymKeycode (SDL.keyboardEventKeysym e) of
+                            SDL.KeycodeEscape -> True
                             _ -> False
-                        )
-                      & or
-              SDL.clear renderer
-              SDL.present renderer
-              unless quit loop
-        loop
+                        SDL.QuitEvent -> True
+                        _ -> False
+                    )
+                  & or
+          SDL.clear renderer
+          SDL.present renderer
+          unless quit loop
+    loop

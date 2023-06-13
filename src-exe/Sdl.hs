@@ -6,6 +6,12 @@ import Control.Exception qualified as E
 import SDL qualified
 import SDL.Vect
 
+withSdlEnvironment :: (SDL.Window -> SDL.Renderer -> IO a) -> IO a
+withSdlEnvironment f =
+  withSdl $
+    withWindow $ \win ->
+      withRenderer win $ \renderer -> f win renderer
+
 withRenderer :: SDL.Window -> (SDL.Renderer -> IO a) -> IO a
 withRenderer win =
   E.bracket
