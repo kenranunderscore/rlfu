@@ -14,8 +14,11 @@ common warnings
 executable rlfu
     import:           warnings
     main-is:          Main.hs
-    other-modules:    Sdl
+    other-modules:    ECS
+                    , Sdl
     build-depends:    base
+                    , containers
                     , sdl2
+                    , vector
     hs-source-dirs:   src-exe
     default-language: GHC2021
