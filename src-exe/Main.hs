@@ -57,8 +57,7 @@ handleEvents evts' = do
 
 main :: IO ()
 main = do
-  let e = fst $ createEntity allEntities
-      allComponents = Components $ addComponent e (Renderable 100 200 (V4 100 maxBound 20 maxBound) 30) emptyComponentArray
+  (_entities, allComponents) <- makeInitialState
   Sdl.withSdlEnvironment $ \_win renderer -> do
     let loop comps frameInfo = do
           SDL.rendererDrawColor renderer $= V4 83 50 maxBound maxBound
@@ -71,9 +70,15 @@ main = do
             SDL.fillRect renderer $ Just $ SDL.Rectangle (P $ V2 (x r) (y r)) (V2 (sideLength r) (sideLength r))
 
           SDL.present renderer
-          let !newRenderables = fmap (\r -> r{x = x r + 1}) (components $ renderables comps)
+          let !newRenderables = fmap (\r -> r{y = y r + 1}) (components $ renderables comps)
               !newComps = comps{renderables = (renderables comps){components = newRenderables}}
           newFrameInfo <- calcFpsInfo frameInfo
           unless quit (loop newComps newFrameInfo)
     now <- SDL.ticks
     loop allComponents (now, 0 :: Int)
+
+makeInitialState :: IO ([Entity], Components)
+makeInitialState = do
+  let e = fst $ createEntity allEntities
+  let renderables' = addComponent e (Renderable 100 200 (V4 100 maxBound 20 maxBound) 30) emptyComponentArray
+  pure ([e], Components renderables')

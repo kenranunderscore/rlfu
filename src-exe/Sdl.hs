@@ -35,7 +35,7 @@ withWindow =
   E.bracket
     ( do
         putStrLn "Creating SDL window"
-        win <- SDL.createWindow "foo" SDL.defaultWindow {SDL.windowInitialSize = V2 640 480}
+        win <- SDL.createWindow "foo" SDL.defaultWindow {SDL.windowInitialSize = V2 800 600}
         SDL.showWindow win
         pure win
     )
