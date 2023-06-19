@@ -38,6 +38,23 @@ calcFpsInfo (t, nframes) = do
     else do
       pure (t, nframes + 1)
 
+handleEvents :: [SDL.Event] -> IO Bool
+handleEvents evts' = do
+  let evts = fmap SDL.eventPayload evts'
+  let quit =
+        evts
+        & fmap
+        ( \case
+            SDL.KeyboardEvent evt | SDL.keyboardEventKeyMotion evt == SDL.Pressed ->
+              case SDL.keysymKeycode (SDL.keyboardEventKeysym evt) of
+                SDL.KeycodeEscape -> True
+                _ -> False
+            SDL.QuitEvent -> True
+            _ -> False
+                    )
+        & or
+  pure quit
+
 main :: IO ()
 main = do
   let e = fst $ createEntity allEntities
@@ -47,19 +64,7 @@ main = do
           SDL.rendererDrawColor renderer $= V4 83 50 maxBound maxBound
           SDL.clear renderer
 
-          evts <- fmap SDL.eventPayload <$> SDL.pollEvents
-          let quit =
-                evts
-                  & fmap
-                    ( \case
-                        SDL.KeyboardEvent evt | SDL.keyboardEventKeyMotion evt == SDL.Pressed ->
-                          case SDL.keysymKeycode (SDL.keyboardEventKeysym evt) of
-                            SDL.KeycodeEscape -> True
-                            _ -> False
-                        SDL.QuitEvent -> True
-                        _ -> False
-                    )
-                  & or
+          quit <- handleEvents =<< SDL.pollEvents
 
           forM_ (components $ renderables comps) $ \r -> do
             SDL.rendererDrawColor renderer $= color r
@@ -68,7 +73,7 @@ main = do
           SDL.present renderer
           let !newRenderables = fmap (\r -> r{x = x r + 1}) (components $ renderables comps)
               !newComps = comps{renderables = (renderables comps){components = newRenderables}}
-          (newTime, frameCounter') <- calcFpsInfo frameInfo
-          unless quit (loop newComps (newTime, frameCounter'))
+          newFrameInfo <- calcFpsInfo frameInfo
+          unless quit (loop newComps newFrameInfo)
     now <- SDL.ticks
     loop allComponents (now, 0 :: Int)
